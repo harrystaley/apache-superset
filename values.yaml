@@ -188,8 +188,13 @@ configMountPath: "/app/pythonpath"
 extraConfigMountPath: "/app/configs"
 
 image:
-  repository: apachesuperset.docker.scarf.sh/apache/superset
-  tag: ~
+  # NOTE: switched away from `apachesuperset.docker.scarf.sh/apache/superset`
+  # because that Scarf analytics redirect was returning truncated responses
+  # ("short read: expected N bytes but got 0: unexpected EOF"). Pulling
+  # directly from Docker Hub is faster and gets the native arm64 image on
+  # Apple Silicon.
+  repository: apache/superset
+  tag: "5.0.0"
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
