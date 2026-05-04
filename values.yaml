@@ -929,3 +929,37 @@ topologySpreadConstraints: []
 
 # -- Set priorityClassName for superset pods
 priorityClassName: ~
+
+postgresql:
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/postgresql
+  volumePermissions:
+    image:
+      registry: docker.io
+      repository: bitnamilegacy/os-shell
+  metrics:
+    image:
+      registry: docker.io
+      repository: bitnamilegacy/postgres-exporter
+
+redis:
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/redis
+  metrics:
+    image:
+      registry: docker.io
+      repository: bitnamilegacy/redis-exporter
+  sentinel:
+    image:
+      registry: docker.io
+      repository: bitnamilegacy/redis-sentinel
+  volumePermissions:
+    image:
+      registry: docker.io
+      repository: bitnamilegacy/os-shell
+  sysctl:
+    image:
+      registry: docker.io
+      repository: bitnamilegacy/os-shell
