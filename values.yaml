@@ -104,7 +104,7 @@ extraSecretEnv: {}
   # GOOGLE_KEY: ...
   # GOOGLE_SECRET: ...
   #   # Generate your own secret key for encryption. Use openssl rand -base64 42 to generate a good key
-  #  SUPERSET_SECRET_KEY: 'CHANGE_ME_TO_A_COMPLEX_RANDOM_SECRET'
+  SUPERSET_SECRET_KEY: 'c9mypGBVIG5MN64ka7ijp1NYu/z87j/6ARZXY7mdht9UopgqdlbHv3lP'
 
 # -- Extra files to be mounted as ConfigMap on the path specified in `extraConfigMountPath`
 extraConfigs: {}
