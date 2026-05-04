@@ -142,7 +142,10 @@ extraVolumeMounts: []
 # -- A dictionary of overrides to append at the end of superset_config.py - the name does not matter
 # WARNING: the order is not guaranteed
 # Files can be passed as helm --set-file configOverrides.my-override=my-file.py
-configOverrides: {}
+# IMPORTANT: replace the SECRET_KEY value below with the output of `openssl rand -base64 42`
+configOverrides:
+  secret: |
+    SECRET_KEY = 'CHANGE_ME_TO_A_COMPLEX_RANDOM_SECRET'
   # extend_timeout: |
   #    # Extend timeout to allow long running queries.
   #    SUPERSET_WEBSERVER_TIMEOUT = ...
@@ -174,9 +177,6 @@ configOverrides: {}
   #   AUTH_USER_REGISTRATION = True
   #   # The default user self registration role
   #   AUTH_USER_REGISTRATION_ROLE = "Admin"
-  # secret: |
-  #   # Generate your own secret key for encryption. Use `openssl rand -base64 42` to generate a good key
-  #   SECRET_KEY = 'CHANGE_ME_TO_A_COMPLEX_RANDOM_SECRET'
 
 # -- Same as above but the values are files
 configOverridesFiles: {}
@@ -826,6 +826,10 @@ init:
 # -- Configuration values for the postgresql dependency.
 # ref: https://github.com/bitnami/charts/tree/main/bitnami/postgresql
 # @default -- see `values.yaml`
+#
+# NOTE: image.repository points at `bitnamilegacy/postgresql` because Bitnami
+# removed free images from `docker.io/bitnami/*` on 2025-08-28. The legacy
+# repo is a temporary workaround — it receives no security updates.
 postgresql:
   ##
   ## Use the PostgreSQL chart dependency.
@@ -844,7 +848,22 @@ postgresql:
     database: superset
 
   image:
+    ## Bitnami removed free images on 2025-08-28; pin to the legacy repo.
+    registry: docker.io
+    repository: bitnamilegacy/postgresql
     tag: "14.17.0-debian-12-r3"
+
+  ## Override for the volume-permissions init container image (also moved to bitnamilegacy)
+  volumePermissions:
+    image:
+      registry: docker.io
+      repository: bitnamilegacy/os-shell
+
+  ## Override for the postgres metrics exporter image (also moved to bitnamilegacy)
+  metrics:
+    image:
+      registry: docker.io
+      repository: bitnamilegacy/postgres-exporter
 
   ## PostgreSQL Primary parameters
   primary:
@@ -871,6 +890,9 @@ postgresql:
 # ref: https://github.com/bitnami/charts/blob/master/bitnami/redis
 # More documentation can be found here: https://artifacthub.io/packages/helm/bitnami/redis
 # @default -- see `values.yaml`
+#
+# NOTE: image.repository points at `bitnamilegacy/redis` for the same reason
+# as the postgresql block above.
 redis:
   ##
   ## Use the redis chart dependency.
@@ -894,6 +916,36 @@ redis:
     existingSecretKey: ""
     ## Redis password
     password: superset
+
+  ## Image override (Bitnami removed free images on 2025-08-28; pin to the legacy repo)
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/redis
+
+  ## Override for the redis metrics exporter image
+  metrics:
+    image:
+      registry: docker.io
+      repository: bitnamilegacy/redis-exporter
+
+  ## Override for the redis-sentinel image (only used if architecture: replication)
+  sentinel:
+    image:
+      registry: docker.io
+      repository: bitnamilegacy/redis-sentinel
+
+  ## Override for the volume-permissions init container image
+  volumePermissions:
+    image:
+      registry: docker.io
+      repository: bitnamilegacy/os-shell
+
+  ## Override for the sysctl init container image
+  sysctl:
+    image:
+      registry: docker.io
+      repository: bitnamilegacy/os-shell
+
   ##
   ## Master configuration
   ##
@@ -929,37 +981,3 @@ topologySpreadConstraints: []
 
 # -- Set priorityClassName for superset pods
 priorityClassName: ~
-
-postgresql:
-  image:
-    registry: docker.io
-    repository: bitnamilegacy/postgresql
-  volumePermissions:
-    image:
-      registry: docker.io
-      repository: bitnamilegacy/os-shell
-  metrics:
-    image:
-      registry: docker.io
-      repository: bitnamilegacy/postgres-exporter
-
-redis:
-  image:
-    registry: docker.io
-    repository: bitnamilegacy/redis
-  metrics:
-    image:
-      registry: docker.io
-      repository: bitnamilegacy/redis-exporter
-  sentinel:
-    image:
-      registry: docker.io
-      repository: bitnamilegacy/redis-sentinel
-  volumePermissions:
-    image:
-      registry: docker.io
-      repository: bitnamilegacy/os-shell
-  sysctl:
-    image:
-      registry: docker.io
-      repository: bitnamilegacy/os-shell
